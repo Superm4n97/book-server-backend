@@ -4,11 +4,27 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/Superm4n97/book-server-backend/utils/author"
+	"github.com/Superm4n97/book-server-backend/utils"
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-func AddAuthor(author author.Author) error {
+func resultToAuthor(result bson.M) (*utils.Author, error) {
+	jsonData, err := json.MarshalIndent(result, "", "    ")
+	if err != nil {
+		return nil, err
+	}
+	fmt.Println("jsonData: ", string(jsonData))
+
+	var athr utils.Author
+	err = json.Unmarshal(jsonData, &athr)
+	if err != nil {
+		return nil, err
+	}
+
+	return &athr, nil
+}
+
+func AddAuthor(author utils.Author) error {
 	client, err := mongodbClient()
 	if err != nil {
 		return err
@@ -33,10 +49,10 @@ func AddAuthor(author author.Author) error {
 	return nil
 }
 
-func GetAuthor(name string) error {
+func GetAuthor(name string) (*utils.Author, error) {
 	client, err := mongodbClient()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer func() {
 		if err := client.Disconnect(context.TODO()); err != nil {
@@ -48,15 +64,7 @@ func GetAuthor(name string) error {
 	var result bson.M
 	err = coll.FindOne(context.TODO(), bson.D{{"name", name}}).Decode(&result)
 	if err != nil {
-		return err
+		return nil, err
 	}
-
-	fmt.Println("test: ")
-
-	jsonData, err := json.MarshalIndent(result, "", "    ")
-	if err != nil {
-		panic(err)
-	}
-	fmt.Printf("%s\n", jsonData)
-	return nil
+	return resultToAuthor(result)
 }
