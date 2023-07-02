@@ -24,7 +24,9 @@ func Register() *chi.Mux {
 	rt.Get("/ping", pong)
 	rt.Route("/apis/v1", func(r chi.Router) {
 		r.Route("/book", func(r chi.Router) {
-			r.Get("/{name}", book.AllBooks)
+			r.Get("/{name}", book.Get)
+			r.Post("/", book.Add)
+			r.Delete("/{name}", book.Delete)
 		})
 		r.Route("/author", func(r chi.Router) {
 			r.Get("/{name}", author.Get)

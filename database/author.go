@@ -14,8 +14,6 @@ func resultToAuthor(result bson.M) (*utils.Author, error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("jsonData: ", string(jsonData))
-
 	var athr utils.Author
 	err = json.Unmarshal(jsonData, &athr)
 	if err != nil {
@@ -26,7 +24,7 @@ func resultToAuthor(result bson.M) (*utils.Author, error) {
 }
 
 func AddAuthor(author *utils.Author) error {
-	return query(func(coll *mongo.Collection) error {
+	return query(collectionAuthor, func(coll *mongo.Collection) error {
 		_, err := coll.InsertOne(
 			context.TODO(),
 			bson.D{
@@ -39,7 +37,7 @@ func AddAuthor(author *utils.Author) error {
 
 func GetAuthor(name string) (*utils.Author, error) {
 	var result bson.M
-	var err = query(func(coll *mongo.Collection) error {
+	var err = query(collectionAuthor, func(coll *mongo.Collection) error {
 		err := coll.FindOne(context.TODO(), bson.D{{"name", name}}).Decode(&result)
 		return err
 	})
@@ -50,7 +48,7 @@ func GetAuthor(name string) (*utils.Author, error) {
 }
 
 func DeleteAuthor(name string) error {
-	return query(func(coll *mongo.Collection) error {
+	return query(collectionAuthor, func(coll *mongo.Collection) error {
 		_, err := coll.DeleteOne(
 			context.TODO(),
 			bson.D{
@@ -62,12 +60,12 @@ func DeleteAuthor(name string) error {
 
 func ListAuthor() (*utils.AuthorList, error) {
 	var cursor *mongo.Cursor
-	err := query(func(coll *mongo.Collection) error {
+	err := query(collectionAuthor, func(coll *mongo.Collection) error {
 		var err error
 		cursor, err = coll.Find(
 			context.TODO(),
 			bson.D{
-				{"", ""},
+				{"", ""}, //can not list all authors in this way
 			})
 		return err
 	})

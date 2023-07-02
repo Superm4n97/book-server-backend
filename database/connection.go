@@ -33,7 +33,7 @@ func mongodbClient() (*mongo.Client, error) {
 
 type helper func(coll *mongo.Collection) error
 
-func query(helper helper) error {
+func query(collection string, helper helper) error {
 	client, err := mongodbClient()
 	if err != nil {
 		return err
@@ -43,7 +43,7 @@ func query(helper helper) error {
 			panic(err)
 		}
 	}()
-	coll := client.Database(database).Collection(collectionAuthor)
+	coll := client.Database(database).Collection(collection)
 
 	return helper(coll)
 }
