@@ -7,6 +7,12 @@ export MONGODB_URI="mongodb+srv://<username>:<password>@<mongo_cluster>/?retryWr
 go run main.go
 ```
 
+## Run container
+```bash
+docker pull superm4n/book-server-backend:v0.0.0
+docker run -d -p 8080:8080 superm4n/book-server-backend:v0.0.0
+```
+
 ## APIs
 * `[POST]`:`/apis/v1/author` - Adds a author to the database. The request body contains 
 ```json
