@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/Superm4n97/book-server-backend/utils"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func resultToAuthor(result bson.M) (*utils.Author, error) {
@@ -24,47 +25,60 @@ func resultToAuthor(result bson.M) (*utils.Author, error) {
 	return &athr, nil
 }
 
-func AddAuthor(author utils.Author) error {
-	client, err := mongodbClient()
-	if err != nil {
+func AddAuthor(author *utils.Author) error {
+	return query(func(coll *mongo.Collection) error {
+		_, err := coll.InsertOne(
+			context.TODO(),
+			bson.D{
+				{"name", author.Name},
+				{"email", author.Email},
+			})
 		return err
-	}
-	defer func() {
-		if err := client.Disconnect(context.TODO()); err != nil {
-			panic(err)
-		}
-	}()
-	coll := client.Database(database).Collection(collectionAuthor)
-
-	_, err = coll.InsertOne(
-		context.TODO(),
-		bson.D{
-			{"name", author.Name},
-			{"email", author.Email},
-		})
-	if err != nil {
-		return err
-	}
-
-	return nil
+	})
 }
 
 func GetAuthor(name string) (*utils.Author, error) {
-	client, err := mongodbClient()
-	if err != nil {
-		return nil, err
-	}
-	defer func() {
-		if err := client.Disconnect(context.TODO()); err != nil {
-			panic(err)
-		}
-	}()
-	coll := client.Database(database).Collection(collectionAuthor)
-
 	var result bson.M
-	err = coll.FindOne(context.TODO(), bson.D{{"name", name}}).Decode(&result)
+	var err = query(func(coll *mongo.Collection) error {
+		err := coll.FindOne(context.TODO(), bson.D{{"name", name}}).Decode(&result)
+		return err
+	})
 	if err != nil {
 		return nil, err
 	}
 	return resultToAuthor(result)
+}
+
+func DeleteAuthor(name string) error {
+	return query(func(coll *mongo.Collection) error {
+		_, err := coll.DeleteOne(
+			context.TODO(),
+			bson.D{
+				{"name", name},
+			})
+		return err
+	})
+}
+
+func ListAuthor() (*utils.AuthorList, error) {
+	var cursor *mongo.Cursor
+	err := query(func(coll *mongo.Collection) error {
+		var err error
+		cursor, err = coll.Find(
+			context.TODO(),
+			bson.D{
+				{"", ""},
+			})
+		return err
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	var result bson.A
+	_ = cursor.All(context.TODO(), &result)
+	fmt.Println("------------------------cursor--------------------")
+	fmt.Println(result)
+
+	return nil, nil
 }

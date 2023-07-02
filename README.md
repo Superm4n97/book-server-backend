@@ -22,6 +22,7 @@ docker run -d -p 8080:8080 superm4n/book-server-backend:v0.0.0
 }
 ```
 * `[GET]`:`apis/v1/author/{name}` - Gets the author's information. The author is identifies by the `name`.
+* `[DELETE]`:`apis/v1/author/{name}` - Deletes the author whose name is identified in `name`.
 
 ## Architecture
 ![Archetecture](./docs/resource/archetecture.jpg)

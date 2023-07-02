@@ -30,3 +30,20 @@ func mongodbClient() (*mongo.Client, error) {
 	}
 	return c, nil
 }
+
+type helper func(coll *mongo.Collection) error
+
+func query(helper helper) error {
+	client, err := mongodbClient()
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err := client.Disconnect(context.TODO()); err != nil {
+			panic(err)
+		}
+	}()
+	coll := client.Database(database).Collection(collectionAuthor)
+
+	return helper(coll)
+}

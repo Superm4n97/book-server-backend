@@ -29,6 +29,7 @@ func Register() *chi.Mux {
 		r.Route("/author", func(r chi.Router) {
 			r.Get("/{name}", author.Get)
 			r.Post("/", author.Add)
+			r.Delete("/{name}", author.Delete)
 		})
 	})
 	return rt

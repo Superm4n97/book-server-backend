@@ -45,7 +45,7 @@ func Add(w http.ResponseWriter, r *http.Request) {
 
 	_, err = database.GetAuthor(athr.Name)
 	if err == mongo.ErrNoDocuments {
-		if err = database.AddAuthor(athr); err != nil {
+		if err = database.AddAuthor(&athr); err != nil {
 			w.Write([]byte(err.Error()))
 			w.WriteHeader(http.StatusInternalServerError)
 			return
@@ -63,4 +63,40 @@ func Add(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte(fmt.Sprintf("Author %s already exists", athr.Name)))
 	return
+}
+
+func Delete(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+
+	name := chi.URLParam(r, "name")
+
+	_, err := database.GetAuthor(name)
+	if err == mongo.ErrNoDocuments {
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(fmt.Sprintf("Author %s does not exists", name)))
+
+		return
+	}
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+	}
+
+	err = database.DeleteAuthor(name)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		w.Write([]byte(err.Error()))
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte(fmt.Sprintf("Author %s successfully deleted", name)))
+	return
+}
+func List(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
+	_, err := database.ListAuthor()
+	if err != nil {
+		klog.Infof(err.Error())
+	}
 }
