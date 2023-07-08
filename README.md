@@ -8,12 +8,19 @@ go run main.go
 ```
 
 ## Run container
+### User
 ```bash
 docker pull superm4n/book-server-backend:v0.0.0
 docker run -d -p 8080:8080 superm4n/book-server-backend:v0.0.0
 ```
 
+### Developer
+* `make build`, to build the container.
+* `make run`, to run the container.
+* `make push`, to push the container in remote repository.
+
 ## APIs
+* `[GET]`:`/ping` - Used to check the connectivity.
 * `[POST]`:`/apis/v1/author` - Adds an author to the database. The request body contains 
     ```json
     {
